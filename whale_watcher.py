@@ -36,7 +36,7 @@ def on_message(ws, message):
     # Fetch price and amount from binance
     price = float(data['p']) # Price
     amount = float(data['q']) # Quantity
-    symbol = data['s'] # Side flag
+    symbol = data['s'] # Side flag   
     total_value = price * amount
     
     # check if the trade is a whale trade

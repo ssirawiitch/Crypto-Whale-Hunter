@@ -57,3 +57,35 @@ SELECT * FROM `crypto_ds.raw_whale_trades` ORDER BY timestamp DESC LIMIT 10
 <!-- ![BigQuery Results](result/image-2.png) -->
 ![BigQuery Result](result/image-4.png)
 *Figure 3: Verified whale trade records successfully stored in BigQuery.*
+
+---
+
+## 🔄 Orchestration & Analytics Layer (New!)
+
+To transform raw data into actionable market insights, an **Orchestration Layer** powered by **Apache Airflow** has been integrated. This addition shifts the project from a simple ingestion script to a production-grade data pipeline.
+
+### 🧩 Key Enhancements
+* **Workflow Automation:** Managed by Apache Airflow 3.x running in **Docker**, utilizing the **LocalExecutor** for optimal resource management on local environments.
+* **Daily Market Summary:** A specialized DAG (`daily_crypto_whale_summary`) is scheduled to trigger every day at **01:00 UTC**. It automatically aggregates and analyzes whale activities from the previous 24 hours.
+* **Market Momentum Logic:** Implemented automated SQL-based analysis to calculate the "Net Flow" and determine if **Bulls (Buyers)** or **Bears (Sellers)** dominated the whale-tier transactions.
+* **Error Handling & Monitoring:** Built-in retry mechanisms and task state monitoring ensure the pipeline's reliability against API timeouts or cloud connectivity issues.
+
+### ⚙️ Orchestration Tech Stack
+
+| Component          | Technology                               |
+| :----------------- | :--------------------------------------- |
+| **Orchestrator** | Apache Airflow 3.x (Dockerized)          |
+| **Executor** | LocalExecutor                            |
+| **GCP Integration**| Airflow `BigQueryHook` & `GCP Connection` |
+| **Scheduling** | Cron-based (`0 1 * * *`)                 |
+
+### 📊 Downstream Workflow (DAG)
+
+The Airflow DAG follows a structured sequence to process data stored in BigQuery:
+
+1.  **Extract & Aggregate:** Executes a parameterized SQL query to fetch whale trades specifically from `CURRENT_DATE() - 1`.
+2.  **Market Sentiment Calculation:** Processes the results to compare total volume and transaction counts between `BUY` and `SELL` sides.
+3.  **Insight Logging:** Outputs a structured summary of market momentum, providing a clear "Daily Winner" (Bulls vs. Bears).
+4.  **Extensibility:** The architecture is designed to easily integrate future tasks like **LINE/Slack Notifications** or triggering **ML Prediction Models**.
+
+---
